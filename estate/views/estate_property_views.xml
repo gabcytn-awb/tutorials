@@ -59,6 +59,11 @@
                                 </group>
                             </group>
                         </page>
+                        <page string="Other Info">
+                            <group>
+                                <group></group>
+                            </group>
+                        </page>
                     </notebook>
                 </sheet>
             </form>
@@ -69,7 +74,7 @@
         <field name="name">estate.property.search</field>
         <field name="model">estate.property</field>
         <field name="arch" type="xml">
-            <search string="Tests">
+            <search>
                 <field name="name" />
                 <field name="postcode" />
                 <field name="expected_price" />
@@ -77,8 +82,8 @@
                 <field name="living_area" />
                 <field name="facades" />
                 <filter string="Available" name="available" domain="[('state', 'in', ('new', 'offer_received'))]" />
-                <group string="Group By">
-                    <filter string="Postcode" name="postcode" context="{'group_by': 'postcode'}" />
+                <group>
+                    <filter string="Postcode" name="postcode_group" context="{'group_by':'postcode'}" />
                 </group>
             </search>
         </field>
