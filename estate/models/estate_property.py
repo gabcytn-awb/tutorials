@@ -6,6 +6,14 @@ class EstateProperty(models.Model):
     _name = "estate.property"
     _description = "Estate Property tutorial"
 
+    _ensure_positive_selling_price = models.Constraint(
+        "CHECK(selling_price > 0)", "Selling price must be strictly positive"
+    )
+
+    _ensure_positive_expected_price = models.Constraint(
+        "CHECK(expected_price > 0)", "Expected price must be strictly positive"
+    )
+
     name = fields.Char(required=True)
     description = fields.Text()
     postcode = fields.Char()
