@@ -1,5 +1,6 @@
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
+from odoo.tools import float_compare, float_is_zero
 
 
 class EstateProperty(models.Model):
@@ -95,3 +96,19 @@ class EstateProperty(models.Model):
         if "sold" in self.mapped("state"):
             raise UserError("Sold properties cannot be cancelled.")
         return self.write({"state": "canceled"})
+
+    @api.constrains("selling_price", "expected_price")
+    def _check_price_difference(self):
+        for property in self:
+            if (
+                not float_is_zero(property.selling_price, precision_rounding=0.01)
+                and float_compare(
+                    property.selling_price,
+                    property.expected_price * 90.0 / 100.0,
+                    precision_rounding=0.01,
+                )
+                < 0
+            ):
+                raise ValidationError(
+                    "The selling price must be at least 90% of the expected price"
+                )
