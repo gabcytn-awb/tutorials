@@ -1,5 +1,9 @@
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools import float_compare
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class EstatePropertyOffer(models.Model):
@@ -68,3 +72,22 @@ class EstatePropertyOffer(models.Model):
         if "accepted" in self.mapped("status"):
             raise UserError("Accepted offer cannot be refused.")
         self.write({"status": "refused"})
+
+    @api.model
+    def create(self, vals):
+        for val in vals:
+            if val.get("property_id") and val.get("price"):
+                _logger.info(f"val: {val}")
+                property = self.env["estate.property"].browse(val.get("property_id"))
+                if property.offer_ids:
+                    max_offer = max(property.mapped("offer_ids.price"))
+                    if (
+                        float_compare(
+                            val.get("price"), max_offer, precision_rounding=0.01
+                        )
+                        < 0
+                    ):
+                        raise UserError(f"The offer must be higher than {max_offer}")
+                property.state = "offer_received"
+
+        return super().create(vals)
